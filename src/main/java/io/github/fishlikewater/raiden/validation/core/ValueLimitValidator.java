@@ -16,8 +16,9 @@
 package io.github.fishlikewater.raiden.validation.core;
 
 import io.github.fishlikewater.raiden.validation.core.annotation.ValueLimit;
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 
 /**

@@ -6,7 +6,7 @@
 
     <groupId>io.github.fishlikewater</groupId>
     <artifactId>raiden-validation-core</artifactId>
-    <version>1.0.1-java8</version>
+    <version>1.0.0-java8</version>
 
     <packaging>jar</packaging>
     <name>raiden-validation-core</name>
@@ -15,7 +15,7 @@
     <properties>
         <raiden-processor.version>1.0.0</raiden-processor.version>
         <lombok.version>1.18.30</lombok.version>
-        <jakarta.validation.version>3.0.2</jakarta.validation.version>
+        <jakarta.validation.version>2.0.2</jakarta.validation.version>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
         <maven.compiler.source.version>1.8</maven.compiler.source.version>
         <maven.compiler.target.version>1.8</maven.compiler.target.version>

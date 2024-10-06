@@ -15,8 +15,7 @@
  */
 package io.github.fishlikewater.raiden.validation.core;
 
-import jakarta.validation.*;
-
+import javax.validation.*;
 import java.util.Collection;
 import java.util.Set;
 
