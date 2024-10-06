@@ -83,7 +83,7 @@ public class ValidationProcessor extends AbstractRaidenProcessor {
             List<JCTree.JCExpression> groups = getGroups(annotation);
             List<JCTree.JCExpression> args = List.of(treeMaker.Ident(getNameFromString(parameter.getSimpleName().toString())));
             if (!groups.isEmpty()) {
-                args.appendList(groups);
+                args = args.appendList(groups);
             }
             JCTree.JCMethodDecl jcMethodDecl = (JCTree.JCMethodDecl) this.getRaidenContext().getTrees().getTree(enclosingElement);
             JCTree.JCExpressionStatement exec = treeMaker.Exec(treeMaker.Apply(
