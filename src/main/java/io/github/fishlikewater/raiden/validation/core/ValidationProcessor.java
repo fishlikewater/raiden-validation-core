@@ -15,19 +15,21 @@
  */
 package io.github.fishlikewater.raiden.validation.core;
 
+import com.google.auto.service.AutoService;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Names;
 import io.github.fishlikewater.raiden.processor.AbstractRaidenProcessor;
 import io.github.fishlikewater.raiden.processor.context.RaidenContext;
 import io.github.fishlikewater.raiden.validation.core.annotation.Validation;
 
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,56 +40,78 @@ import java.util.Set;
  * @version 1.0.0
  * @since 2024/10/04
  */
+@AutoService(Processor.class)
 public class ValidationProcessor extends AbstractRaidenProcessor {
-
-    public ValidationProcessor(RaidenContext raidenContext) {
-        super(raidenContext);
-    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         for (TypeElement annotation : annotations) {
             Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(annotation);
             for (Element element : elements) {
-                if (element.getKind() == ElementKind.PARAMETER) {
+                if (element.getKind() != ElementKind.PARAMETER) {
                     continue;
                 }
                 VariableElement parameter = (VariableElement) element;
-                // 获取注解实例
                 Validation validation = parameter.getAnnotation(Validation.class);
                 if (validation != null) {
-                    this.addValidCode(roundEnv, parameter, validation);
+                    this.addValidCode(parameter);
                 }
             }
         }
         return false;
     }
 
-    private void addValidCode(RoundEnvironment roundEnv, VariableElement parameter, Validation validation) {
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        return new HashSet<>(Collections.singletonList(Validation.class.getName()));
+    }
+
+    private void addValidCode(VariableElement parameter) {
         Element enclosingElement = parameter.getEnclosingElement();
-        if (enclosingElement.getKind() == ElementKind.METHOD) {
-            RaidenContext context = this.getRaidenContext();
-            TreeMaker treeMaker = context.getTreeMaker();
-            JCTree.JCArrayTypeTree classType = treeMaker.TypeArray(context.memberAccess("java.lang.Class"));
-            JCTree.JCExpression initializer = this.createInitializer(treeMaker, context.getNames(), validation);
-            JCTree.JCVariableDecl makeVarDef = context.makeVarDef(
-                    treeMaker.Modifiers(0),
-                    "classArr",
-                    classType,
-                    initializer);
+        JCTree.JCVariableDecl variableDecl = (JCTree.JCVariableDecl) this.getRaidenContext().getJavaEvn().getElementUtils().getTree(parameter);
+        if (enclosingElement.getKind() != ElementKind.METHOD) {
+            return;
+        }
+
+        RaidenContext context = this.getRaidenContext();
+        TreeMaker treeMaker = context.getTreeMaker();
+        for (JCTree.JCAnnotation annotation : variableDecl.mods.annotations) {
+            if (!annotation.annotationType.toString().equals("Validation")) {
+                continue;
+            }
+
+            List<JCTree.JCExpression> groups = getGroups(annotation);
+            List<JCTree.JCExpression> args = List.of(treeMaker.Ident(getNameFromString(parameter.getSimpleName().toString())));
+            if (!groups.isEmpty()) {
+                args.appendList(groups);
+            }
+            JCTree.JCMethodDecl jcMethodDecl = (JCTree.JCMethodDecl) this.getRaidenContext().getTrees().getTree(enclosingElement);
+            JCTree.JCExpressionStatement exec = treeMaker.Exec(treeMaker.Apply(
+                    List.of(memberAccess("java.lang.Object")),//参数类型
+                    memberAccess("io.github.fishlikewater.raiden.validation.core.ValidationUtil.validate"),
+                    args));
+            jcMethodDecl.body = treeMaker.Block(0, List.of(exec, jcMethodDecl.body));
+            break;
         }
     }
 
-    @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        Set<String> set = new HashSet<>();
-        set.add("io.github.fishlikewater.raiden.validation.core.annotation.Validation");
-        return set;
-    }
+    private List<JCTree.JCExpression> getGroups(JCTree.JCAnnotation annotation) {
+        for (JCTree.JCExpression arg : annotation.args) {
+            if (!(arg instanceof JCTree.JCAssign)) {
+                continue;
+            }
 
-    private JCTree.JCExpression createInitializer(TreeMaker maker, Names names, Validation validation) {
-        JCTree.JCExpression validationExpr = maker.Ident(names.fromString("validation"));
-        JCTree.JCExpression groupsMethod = maker.Select(validationExpr, names.fromString("groups"));
-        return maker.NewArray(null, List.of(maker.TypeArray(maker.Ident(names.fromString("Class")))), List.of(groupsMethod));
+            JCTree.JCAssign assign = (JCTree.JCAssign) arg;
+            String attributeName = assign.lhs.toString();
+
+            if (attributeName.equals("groups")) {
+                if (assign.rhs instanceof JCTree.JCNewArray) {
+                    return ((JCTree.JCNewArray) assign.rhs).elems;
+                } else if (assign.rhs instanceof JCTree.JCFieldAccess) {
+                    return List.of(assign.rhs);
+                }
+            }
+        }
+        return List.nil();
     }
 }

@@ -6,14 +6,14 @@
 
     <groupId>io.github.fishlikewater</groupId>
     <artifactId>raiden-validation-core</artifactId>
-    <version>1.0.0-java8</version>
+    <version>1.0.1-java8</version>
 
     <packaging>jar</packaging>
     <name>raiden-validation-core</name>
     <description>参数校验</description>
 
     <properties>
-        <raiden-processor.version>1.0.0-SNAPSHOT</raiden-processor.version>
+        <raiden-processor.version>1.0.0</raiden-processor.version>
         <lombok.version>1.18.30</lombok.version>
         <jakarta.validation.version>3.0.2</jakarta.validation.version>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
@@ -29,6 +29,7 @@
         <sonatype.central.version>0.4.0</sonatype.central.version>
         <javadoc.version>3.7.0</javadoc.version>
         <gpg.version>3.2.4</gpg.version>
+        <auto-service.version>1.1.1</auto-service.version>
     </properties>
 
     <dependencies>
@@ -47,6 +48,12 @@
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
             <version>${jakarta.validation.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>${auto-service.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -86,14 +93,7 @@
                     <source>${maven.compiler.source.version}</source>
                     <target>${maven.compiler.target.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <compilerArgument>-proc:none</compilerArgument>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
+                    <!--<compilerArgument>-proc:none</compilerArgument>-->
                 </configuration>
             </plugin>
             <plugin>
