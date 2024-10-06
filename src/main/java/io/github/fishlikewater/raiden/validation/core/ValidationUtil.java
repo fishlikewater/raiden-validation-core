@@ -36,8 +36,12 @@ public class ValidationUtil {
 
     public static Validator getValidator() {
         if (ObjectUtils.isNullOrEmpty(validator)) {
-            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-            validator = factory.getValidator();
+            synchronized (Validator.class) {
+                if (ObjectUtils.isNullOrEmpty(validator)) {
+                    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+                    validator = factory.getValidator();
+                }
+            }
         }
         return validator;
     }
