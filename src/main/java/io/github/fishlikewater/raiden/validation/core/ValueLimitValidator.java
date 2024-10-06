@@ -16,9 +16,8 @@
 package io.github.fishlikewater.raiden.validation.core;
 
 import io.github.fishlikewater.raiden.validation.core.annotation.ValueLimit;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 
 /**
@@ -56,12 +55,10 @@ public class ValueLimitValidator implements ConstraintValidator<ValueLimit, Obje
         if (ObjectUtils.isNotNullOrEmpty(this.enumClass)) {
             return this.handleEnumClass(this.enumClass, value);
         }
-        if (value instanceof Integer) {
-            Integer intValue = (Integer) value;
+        if (value instanceof Integer intValue) {
             return this.handleIntValue(this.intValues, intValue);
         }
-        if (value instanceof String) {
-            String stringValue = (String) value;
+        if (value instanceof String stringValue) {
             return this.handleStringValue(this.stringValues, stringValue);
         }
         return false;

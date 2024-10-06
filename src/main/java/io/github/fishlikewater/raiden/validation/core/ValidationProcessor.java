@@ -87,7 +87,7 @@ public class ValidationProcessor extends AbstractRaidenProcessor {
             }
             JCTree.JCMethodDecl jcMethodDecl = (JCTree.JCMethodDecl) this.getRaidenContext().getTrees().getTree(enclosingElement);
             JCTree.JCExpressionStatement exec = treeMaker.Exec(treeMaker.Apply(
-                    List.of(memberAccess("java.lang.Object")),//参数类型
+                    List.of(memberAccess("java.lang.Object")),
                     memberAccess("io.github.fishlikewater.raiden.validation.core.ValidationUtil.validate"),
                     args));
             jcMethodDecl.body = treeMaker.Block(0, List.of(exec, jcMethodDecl.body));

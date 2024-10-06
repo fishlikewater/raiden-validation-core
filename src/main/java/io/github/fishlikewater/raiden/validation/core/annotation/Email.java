@@ -16,9 +16,9 @@
 package io.github.fishlikewater.raiden.validation.core.annotation;
 
 import io.github.fishlikewater.raiden.validation.core.EmailValidator;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
 import java.lang.annotation.*;
 
 /**
